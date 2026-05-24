@@ -10,7 +10,8 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, calle, numExt, cp, al, estatus, inicioOp, regimen } = req.body;
+        // Recibimos los nuevos datos: tipoVialidad y qrTexto
+        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
         const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -30,6 +31,10 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoEstado', estado);
         setPdfText('CampoMunicipio', municipio);
         setPdfText('CampoColonia', colonia);
+        
+        // --- NUEVO CAMPO AÑADIDO AL PDF ---
+        setPdfText('CampoTipoVialidad', tipoVialidad); 
+        
         setPdfText('CampoCalle', calle);
         setPdfText('CampoNumExt', numExt);
         setPdfText('CampoCP', cp);
@@ -39,12 +44,16 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoRegimen', regimen);
 
         try {
-            const qrTexto = "pepe"; 
-            const qrImageBuffer = await QRCode.toBuffer(qrTexto, { margin: 0, width: 250 });
+            // --- CÓDIGO QR AHORA ES DINÁMICO ---
+            // Si el bot le manda texto lo usa, si no, pone un link por defecto
+            const textoParaQR = qrTexto || "https://www.gob.mx/"; 
+            const qrImageBuffer = await QRCode.toBuffer(textoParaQR, { margin: 0, width: 250 });
             const qrImage = await pdfDoc.embedPng(qrImageBuffer);
+            
             const qrField = form.getTextField('CampoQR');
             const widgets = qrField.acroField.getWidgets();
             const rect = widgets[0].getRectangle();
+            
             const primeraPagina = pdfDoc.getPages()[0];
             primeraPagina.drawImage(qrImage, { x: rect.x, y: rect.y, width: rect.width, height: rect.height });
         } catch (e) {
@@ -54,7 +63,7 @@ app.post('/api/generar-pdf', async (req, res) => {
         form.flatten();
         const pdfBytes = await pdfDoc.save();
         const identificador = curp || rfc || Math.floor(Math.random() * 10000);
-
+        
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="Ina_${identificador}.pdf"`);
         res.send(Buffer.from(pdfBytes));
@@ -66,5 +75,4 @@ app.post('/api/generar-pdf', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`API en puerto ${PORT}`));
-
+app.listen(PORT, () => console.log(`API de PDFs en puerto ${PORT}`));
