@@ -10,8 +10,8 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        // Recibimos los nuevos datos: tipoVialidad y qrTexto
-        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto } = req.body;
+        // Se recibe el nuevo campo fechaEmision
+        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
         const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -31,10 +31,7 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoEstado', estado);
         setPdfText('CampoMunicipio', municipio);
         setPdfText('CampoColonia', colonia);
-        
-        // --- NUEVO CAMPO AÑADIDO AL PDF ---
         setPdfText('CampoTipoVialidad', tipoVialidad); 
-        
         setPdfText('CampoCalle', calle);
         setPdfText('CampoNumExt', numExt);
         setPdfText('CampoCP', cp);
@@ -42,10 +39,11 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoEstatus', estatus);
         setPdfText('CampoInicioOp', inicioOp);
         setPdfText('CampoRegimen', regimen);
+        
+        // --- NUEVO CAMPO DE FECHA ---
+        setPdfText('CampoFecha', fechaEmision);
 
         try {
-            // --- CÓDIGO QR AHORA ES DINÁMICO ---
-            // Si el bot le manda texto lo usa, si no, pone un link por defecto
             const textoParaQR = qrTexto || "https://www.gob.mx/"; 
             const qrImageBuffer = await QRCode.toBuffer(textoParaQR, { margin: 0, width: 250 });
             const qrImage = await pdfDoc.embedPng(qrImageBuffer);
