@@ -10,8 +10,8 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        // Recibimos los nuevos campos: fullName, idcif, ultimoOp
-        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
+        // Recibimos los nuevos campos: fullName, idcif, ultimoOp y numInt
+        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, numInt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
         const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -35,6 +35,7 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoTipoVialidad', tipoVialidad); 
         setPdfText('CampoCalle', calle);
         setPdfText('CampoNumExt', numExt);
+        setPdfText('CampoNumInt', numInt);
         setPdfText('CampoCP', cp);
         setPdfText('CampoAL', al);
         setPdfText('CampoEstatus', estatus);
