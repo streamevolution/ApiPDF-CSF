@@ -10,8 +10,8 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        // Recibimos los nuevos campos: fullName, idcif, ultimoOp
-        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
+        // Recibimos los nuevos campos: numInt y localidad
+        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, numInt, localidad, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
         const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -21,7 +21,7 @@ app.post('/api/generar-pdf', async (req, res) => {
             try { if (valor) form.getTextField(campo).setText(valor); } catch (e) { }
         };
 
-        // --- CAMPOS ORIGINALES ---
+        // --- CAMPOS DE TEXTO ---
         setPdfText('CampoNombres', nombre);
         setPdfText('CampoPaterno', paterno);
         setPdfText('CampoMaterno', materno);
@@ -30,19 +30,22 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoFechaNac', fechaNac);
         setPdfText('CampoCorreo', correo);
         setPdfText('CampoEstado', estado);
+        
+        // Ajustes de Ubicación
         setPdfText('CampoMunicipio', municipio);
         setPdfText('CampoColonia', colonia);
         setPdfText('CampoTipoVialidad', tipoVialidad); 
         setPdfText('CampoCalle', calle);
         setPdfText('CampoNumExt', numExt);
+        setPdfText('CampoNumInt', numInt); // NUEVO CAMPO
+        setPdfText('CampoLocalidad', localidad); // NUEVO CAMPO
         setPdfText('CampoCP', cp);
+        
         setPdfText('CampoAL', al);
         setPdfText('CampoEstatus', estatus);
         setPdfText('CampoInicioOp', inicioOp);
         setPdfText('CampoRegimen', regimen);
         setPdfText('CampoFecha', fechaEmision);
-
-        // --- NUEVOS CAMPOS AGREGADOS ---
         setPdfText('CampoFullName', fullName);
         setPdfText('CampoIDCIF', idcif);
         setPdfText('CampoUltimoOp', ultimoOp);
