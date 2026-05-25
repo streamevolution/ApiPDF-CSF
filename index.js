@@ -10,8 +10,8 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        // Se recibe el nuevo campo fechaEmision
-        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision } = req.body;
+        // Recibimos los nuevos campos: fullName, idcif, ultimoOp
+        const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
         const pdfDoc = await PDFDocument.load(templatePdfBytes);
@@ -21,6 +21,7 @@ app.post('/api/generar-pdf', async (req, res) => {
             try { if (valor) form.getTextField(campo).setText(valor); } catch (e) { }
         };
 
+        // --- CAMPOS ORIGINALES ---
         setPdfText('CampoNombres', nombre);
         setPdfText('CampoPaterno', paterno);
         setPdfText('CampoMaterno', materno);
@@ -39,9 +40,12 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoEstatus', estatus);
         setPdfText('CampoInicioOp', inicioOp);
         setPdfText('CampoRegimen', regimen);
-        
-        // --- NUEVO CAMPO DE FECHA ---
         setPdfText('CampoFecha', fechaEmision);
+
+        // --- NUEVOS CAMPOS AGREGADOS ---
+        setPdfText('CampoFullName', fullName);
+        setPdfText('CampoIDCIF', idcif);
+        setPdfText('CampoUltimoOp', ultimoOp);
 
         try {
             const textoParaQR = qrTexto || "https://www.gob.mx/"; 
