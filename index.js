@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.post('/api/generar-pdf', async (req, res) => {
     try {
-        // Recibimos los nuevos campos: numInt y localidad
+        // Se agregaron numInt y localidad a la lista
         const { nombre, paterno, materno, rfc, curp, fechaNac, correo, estado, municipio, colonia, tipoVialidad, calle, numExt, numInt, localidad, cp, al, estatus, inicioOp, regimen, qrTexto, fechaEmision, fullName, idcif, ultimoOp } = req.body;
 
         const templatePdfBytes = await fs.readFile('./plantilla.pdf');
@@ -21,7 +21,7 @@ app.post('/api/generar-pdf', async (req, res) => {
             try { if (valor) form.getTextField(campo).setText(valor); } catch (e) { }
         };
 
-        // --- CAMPOS DE TEXTO ---
+        // --- CAMPOS ---
         setPdfText('CampoNombres', nombre);
         setPdfText('CampoPaterno', paterno);
         setPdfText('CampoMaterno', materno);
@@ -31,14 +31,14 @@ app.post('/api/generar-pdf', async (req, res) => {
         setPdfText('CampoCorreo', correo);
         setPdfText('CampoEstado', estado);
         
-        // Ajustes de Ubicación
+        // --- UBICACIÓN ---
         setPdfText('CampoMunicipio', municipio);
         setPdfText('CampoColonia', colonia);
         setPdfText('CampoTipoVialidad', tipoVialidad); 
         setPdfText('CampoCalle', calle);
         setPdfText('CampoNumExt', numExt);
-        setPdfText('CampoNumInt', numInt); // NUEVO CAMPO
-        setPdfText('CampoLocalidad', localidad); // NUEVO CAMPO
+        setPdfText('CampoNumInt', numInt); // NUEVO
+        setPdfText('CampoLocalidad', localidad); // NUEVO
         setPdfText('CampoCP', cp);
         
         setPdfText('CampoAL', al);
